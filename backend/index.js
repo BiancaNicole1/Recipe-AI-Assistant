@@ -32,7 +32,6 @@ app.post('/api/generate-recipe', async (req, res) => {
   try {
     const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare și pașii de preparare.`;
 
-    // Apelăm modelul stabil
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
@@ -41,9 +40,19 @@ app.post('/api/generate-recipe', async (req, res) => {
       title: "Rețetă Generată", 
       recipe: responseText 
     });
+    
   } catch (error) {
-    console.error("Eroare la generarea rețetei:", error);
-    res.status(500).json({ error: "Eroare server: " + error.message });
+    console.error("Eroare la generarea rețetei:", error.message);
+    
+    // VERIFICĂM DACĂ E EROARE DE TRAFIC DE LA GOOGLE
+    if (error.message.includes("503") || error.message.includes("high demand") || error.message.includes("500")) {
+      return res.status(503).json({ 
+        error: "Serverele Google sunt suprasolicitate momentan. ⏳ Fiind un cont gratuit, mai apar întârzieri. Te rog să încerci din nou în câteva minute!" 
+      });
+    }
+
+    // Dacă e altă eroare
+    res.status(500).json({ error: "Eroare la server: " + error.message });
   }
 });
 
