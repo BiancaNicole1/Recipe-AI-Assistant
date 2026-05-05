@@ -10,10 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Inițializăm serviciile cu cheile tale direct în cod:
-const GEMINI_API_KEY = "AIzaSyCVr8KPCia2zZcVheS4wKYI8aAdOsUATH4";
+// 1. Inițializăm serviciile cu noile tale chei
+const GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
 const SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_4hYNbLbGTo6nEBj_0m5AJQ_mkY-7DJg";
+const SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
 
 const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
