@@ -1,12 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
-import { GoogleGenAI } from '@google/genai';
+import { GoogleGenAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-// Setăm variabilele direct în mediul de execuție
 process.env.GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
 process.env.SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
 process.env.SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
@@ -18,12 +17,10 @@ app.use(express.json());
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
-// Endpoint de test
 app.get('/api/test', (req, res) => {
   res.json({ message: "Backend-ul funcționează!" });
 });
 
-// Endpoint pentru generarea rețetei cu Gemini
 app.post('/api/generate-recipe', async (req, res) => {
   const { ingredients } = req.body;
   
@@ -32,7 +29,7 @@ app.post('/api/generate-recipe', async (req, res) => {
   }
 
   try {
-    const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare (poți adăuga sare, piper sau ulei dacă e cazul) și pașii de preparare.`;
+    const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare și pașii de preparare.`;
 
     const response = await ai.models.generateContent({
       model: 'gemini-1.5-flash',
@@ -49,7 +46,6 @@ app.post('/api/generate-recipe', async (req, res) => {
   }
 });
 
-// Endpoint pentru salvarea unei rețete în Supabase
 app.post('/api/save-recipe', async (req, res) => {
   const { userId, title, ingredients, recipeText } = req.body;
 
