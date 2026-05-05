@@ -3,12 +3,10 @@ import axios from 'axios';
 import { createClient } from '@supabase/supabase-js';
 import './App.css';
 
-// Inițializare Supabase pe partea de frontend
 const SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Adresa backend-ului publicat pe Render
 const BACKEND_URL = "https://recipe-ai-assistant-backend.onrender.com";
 
 function App() {
@@ -21,7 +19,6 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  // 1. Verificăm dacă utilizatorul este deja logat (persistență la refresh)
   useEffect(() => {
     const fetchSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -39,10 +36,9 @@ function App() {
     };
   }, []);
 
-  // 2. Funcție de înregistrare
   const handleSignUp = async (e) => {
     e.preventDefault();
-    const { user, error } = await supabase.auth.signUp({ email, password });
+    const { error } = await supabase.auth.signUp({ email, password });
     if (error) {
       alert(error.message);
     } else {
@@ -50,7 +46,6 @@ function App() {
     }
   };
 
-  // 3. Funcție de autentificare
   const handleLogin = async (e) => {
     e.preventDefault();
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -61,17 +56,16 @@ function App() {
     }
   };
 
-  // 4. Funcție de deconectare
   const handleLogout = async () => {
     await supabase.auth.signOut();
     setUser(null);
   };
 
-  // 5. Generare Rețetă
   const generateRecipe = async () => {
     if (!ingredients) return alert('Introdu ingredientele!');
     setLoading(true);
     setMessage('');
+    setRecipe('');
     try {
       const arrayIngrediente = ingredients.split(',').map(i => i.trim());
       const response = await axios.post(`${BACKEND_URL}/api/generate-recipe`, {
@@ -80,13 +74,12 @@ function App() {
       setRecipe(response.data.recipe);
       setTitle(response.data.title);
     } catch (err) {
-      setMessage('Eroare la generarea rețetei.');
+      setMessage('Eroare la generarea rețetei. Asigură-te că backend-ul este activ pe Render.');
     } finally {
       setLoading(false);
     }
   };
 
-  // 6. Salvare Rețetă în Supabase
   const saveRecipe = async () => {
     if (!user) return alert('Trebuie să fii logat pentru a salva rețeta!');
     try {
@@ -102,79 +95,94 @@ function App() {
     }
   };
 
-  // Dacă utilizatorul nu este logat, afișăm ecranul de autentificare
   if (!user) {
     return (
-      <div style={{ padding: '40px', fontFamily: 'sans-serif', maxWidth: '400px', margin: 'auto' }}>
-        <h2>Autentificare Asistent Culinar</h2>
-        <form style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-          <input 
-            type="email" 
-            placeholder="Email" 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
-            required 
-          />
-          <input 
-            type="password" 
-            placeholder="Parolă" 
-            value={password} 
-            onChange={(e) => setPassword(e.target.value)} 
-            required 
-          />
-          <button onClick={handleLogin} style={{ padding: '8px', background: '#28a745', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Autentificare
-          </button>
-          <button onClick={handleSignUp} style={{ padding: '8px', background: '#007bff', color: '#fff', border: 'none', cursor: 'pointer' }}>
-            Înregistrare
-          </button>
-        </form>
+      <div className="auth-container">
+        <div className="auth-card">
+          <h2>Autentificare Asistent Culinar</h2>
+          <p className="subtitle">Introdu datele pentru a continua</p>
+          <form className="auth-form">
+            <div className="input-group">
+              <label>Email</label>
+              <input 
+                type="email" 
+                placeholder="exemplu@email.com" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                required 
+              />
+            </div>
+            <div className="input-group">
+              <label>Parolă</label>
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                value={password} 
+                onChange={(e) => setPassword(e.target.value)} 
+                required 
+              />
+            </div>
+            <button onClick={handleLogin} className="btn btn-login">
+              Autentificare
+            </button>
+            <button onClick={handleSignUp} className="btn btn-signup">
+              Înregistrare
+            </button>
+          </form>
+        </div>
       </div>
     );
   }
 
-  // Ecranul principal după logare
   return (
-    <div style={{ padding: '30px', fontFamily: 'sans-serif' }}>
-      <h1>🍽️ Asistent Culinar AI</h1>
-      <p>Logat ca: {user.email}</p>
-      <button onClick={handleLogout} style={{ padding: '5px 10px', background: '#dc3545', color: '#fff', border: 'none', cursor: 'pointer', marginBottom: '20px' }}>
-        Deconectare
-      </button>
-
-      <div style={{ marginTop: '15px' }}>
-        <label><b>Introdu ingredientele separate prin virgulă:</b></label><br />
-        <input 
-          type="text" 
-          value={ingredients} 
-          onChange={(e) => setIngredients(e.target.value)} 
-          placeholder="ex: ouă, roșii, brânză, sare" 
-          style={{ width: '400px', padding: '8px', marginTop: '5px' }} 
-        /><br />
-
-        <button 
-          onClick={generateRecipe} 
-          style={{ marginTop: '10px', padding: '10px 20px', background: '#ff9800', border: 'none', color: '#fff', cursor: 'pointer' }}
-          disabled={loading}
-        >
-          {loading ? 'Se generează cu Gemini...' : 'Generează Rețeta'}
+    <div className="main-container">
+      <header className="header">
+        <div className="logo-section">
+          <h1>🍽️ Asistent Culinar AI</h1>
+          <p className="user-badge">Utilizator: <b>{user.email}</b></p>
+        </div>
+        <button onClick={handleLogout} className="btn btn-logout">
+          Deconectare
         </button>
-      </div>
+      </header>
 
-      {message && <p style={{ color: 'red' }}>{message}</p>}
-
-      {recipe && (
-        <div style={{ marginTop: '30px', border: '1px solid #ccc', padding: '20px', borderRadius: '5px', maxWidth: '600px' }}>
-          <h2>{title}</h2>
-          <div style={{ whiteSpace: 'pre-wrap' }}>{recipe}</div>
+      <div className="content-grid">
+        <div className="card input-section">
+          <h2>Ce vrei să gătești azi?</h2>
+          <label>Ingrediente disponibile (separate prin virgulă):</label>
+          <input 
+            type="text" 
+            value={ingredients} 
+            onChange={(e) => setIngredients(e.target.value)} 
+            placeholder="ex: ouă, roșii, brânză, sare" 
+            className="styled-input" 
+          />
           <button 
-            onClick={saveRecipe} 
-            style={{ marginTop: '15px', padding: '8px 16px', background: '#007bff', color: '#fff', border: 'none', cursor: 'pointer' }}
+            onClick={generateRecipe} 
+            className="btn btn-generate"
+            disabled={loading}
           >
-            Salvează rețeta în Supabase
+            {loading ? 'Se generează rețeta...' : 'Generează Rețeta'}
           </button>
         </div>
-      )}
+
+        {message && <p className="error-message">{message}</p>}
+
+        {recipe && (
+          <div className="card recipe-section">
+            <h2>{title}</h2>
+            <div className="recipe-content">
+              <pre>{recipe}</pre>
+            </div>
+            <button 
+              onClick={saveRecipe} 
+              className="btn btn-save"
+            >
+              Salvează rețeta în Supabase
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
