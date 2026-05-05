@@ -110,7 +110,7 @@ const handleLogout = () => {
         {/* HEADER */}
         <header className="top-header">
           <div className="header-info">
-            <h1>🍽️ Asistent Culinar AI</h1>
+            <h1> Asistent Culinar AI</h1>
             <p>Utilizator: <span className="user-email">biancanicole20003@gmail.com</span></p>
           </div>
           <button className="btn-logout" onClick={handleLogout}>Deconectare</button>
