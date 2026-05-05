@@ -1,115 +1,236 @@
-/* Resetare de bază */
-* {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
+/* RESET & BASE */
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  background-color: #0f172a; /* Un albastru închis foarte modern */
-  color: #f1f5f9;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.6;
+  background-color: #0b1120;
+  background-image: radial-gradient(circle at top right, #1e293b, #0b1120);
+  color: #f8fafc;
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
 }
 
-/* Containerul principal care ține totul pe centru */
-.app-container {
+/* LAYOUT: Centrare Perfectă */
+.app-wrapper {
+  display: flex;
+  justify-content: center; /* Centrează pe axa X */
+  align-items: flex-start;
+  padding: 3rem 1rem;
   min-height: 100vh;
+}
+
+.main-container {
+  width: 100%;
+  max-width: 850px; /* Lățimea ideală, nu se lățește aiurea pe desktop */
   display: flex;
   flex-direction: column;
-  align-items: center; /* Centrează pe orizontală */
-  padding: 2rem 1rem;
+  gap: 2rem;
 }
 
-/* Limităm lățimea ca să nu se întindă pe tot ecranul pe monitoare mari */
-.content-wrapper {
+/* HEADER */
+.top-header {
+  background: rgba(30, 41, 59, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 1.5rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+}
+
+.header-info h1 { font-size: 1.5rem; color: #f8fafc; margin-bottom: 0.2rem; }
+.header-info p { color: #94a3b8; font-size: 0.9rem; }
+.user-email { color: #cbd5e1; font-weight: 600; }
+
+.btn-logout {
+  background-color: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.btn-logout:hover { background-color: #dc2626; transform: translateY(-2px); }
+
+/* TABS */
+.tabs-container {
+  display: flex;
+  gap: 1rem;
+}
+
+.tab-btn {
+  background: #1e293b;
+  color: #94a3b8;
+  border: 1px solid #334155;
+  padding: 0.8rem 1.5rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.tab-btn:hover { background: #334155; color: #f8fafc; }
+.tab-btn.active {
+  background: #3b82f6;
+  color: white;
+  border-color: #60a5fa;
+  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+}
+
+/* CARDS (Glassmorphism) */
+.glass-card {
+  background: rgba(30, 41, 59, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid #334155;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+
+.glass-card h2 { color: #f8fafc; margin-bottom: 0.5rem; }
+.subtitle { color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.95rem; }
+
+/* FORM ELEMENTS */
+.pro-input {
   width: 100%;
-  max-width: 800px;
+  padding: 1.2rem;
+  background-color: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 12px;
+  color: #f8fafc;
+  font-size: 1.05rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.pro-input:focus {
+  outline: none;
+  border-color: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+}
+
+.btn-generate {
+  width: 100%;
+  padding: 1.2rem;
+  background: linear-gradient(135deg, #f59e0b, #ea580c);
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+}
+
+.btn-generate:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
+}
+.btn-generate:disabled { background: #475569; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
+
+/* ALERTS */
+.alert-box {
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.alert-box.error { background-color: rgba(127, 29, 29, 0.5); border: 1px solid #b91c1c; color: #fca5a5; }
+.alert-box.success { background-color: rgba(20, 83, 45, 0.5); border: 1px solid #16a34a; color: #86efac; }
+.alert-box.mini { padding: 0.8rem; margin-bottom: 1rem; font-size: 0.9rem; }
+
+/* RESULTS AREA */
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.btn-save {
+  background-color: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.btn-save:hover:not(:disabled) { background-color: #059669; }
+
+/* MARKDOWN STYLING */
+.markdown-container {
+  color: #e2e8f0;
+  line-height: 1.7;
+  font-size: 1.05rem;
+}
+.markdown-container h1, .markdown-container h2, .markdown-container h3 {
+  color: #fbbf24;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+.markdown-container h1:first-child, .markdown-container h2:first-child { margin-top: 0; }
+.markdown-container ul, .markdown-container ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
+.markdown-container li { margin-bottom: 0.5rem; }
+.markdown-container strong { color: #f8fafc; }
+.saved-recipes-container {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-/* Design-ul "Cardurilor" (Cutiile gri) */
-.card {
-  background-color: #1e293b;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  border: 1px solid #334155;
+.saved-item {
+  border-left: 5px solid #f59e0b; /* O dungă portocalie în stânga */
+  transition: transform 0.2s;
 }
 
-.card h2 {
+.saved-item:hover {
+  transform: scale(1.01);
+}
+
+.saved-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #ffffff;
+  border-bottom: 1px dashed #334155;
+  padding-bottom: 0.5rem;
 }
 
-/* Input-ul pentru ingrediente */
-.input-field {
-  width: 100%;
-  padding: 1rem;
-  background-color: #0f172a;
-  border: 1px solid #475569;
-  border-radius: 8px;
-  color: #f8fafc;
-  font-size: 1rem;
-  margin-bottom: 1.5rem;
-  transition: border-color 0.3s ease;
+.date-tag {
+  font-size: 0.8rem;
+  background: #334155;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  color: #94a3b8;
 }
 
-.input-field:focus {
-  outline: none;
-  border-color: #f59e0b; /* Portocaliu la focus */
-}
-
-/* Butonul principal portocaliu */
-.btn-primary {
-  width: 100%;
-  padding: 1rem;
-  background-color: #f59e0b;
-  color: #ffffff;
-  font-weight: bold;
-  font-size: 1.1rem;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.1s ease;
-}
-
-.btn-primary:hover {
-  background-color: #d97706;
-}
-
-.btn-primary:active {
-  transform: scale(0.98);
-}
-
-.btn-primary:disabled {
-  background-color: #94a3b8;
-  cursor: not-allowed;
-}
-
-/* Stilizarea textului generat (Markdown) */
-.recipe-content {
-  background-color: #0f172a;
-  padding: 1.5rem;
-  border-radius: 8px;
-  border: 1px solid #334155;
-  color: #cbd5e1;
-}
-
-.recipe-content h2, .recipe-content h3 {
-  color: #f59e0b;
-  margin-top: 1.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.recipe-content ul, .recipe-content ol {
-  margin-left: 1.5rem;
+.ingredients-tag {
+  font-size: 0.9rem;
+  color: #60a5fa;
   margin-bottom: 1rem;
 }
 
-.recipe-content li {
-  margin-bottom: 0.5rem;
+.markdown-container.mini {
+  font-size: 0.95rem;
+  max-height: 300px; /* Ca să nu fie gigantice dacă sunt multe */
+  overflow-y: auto;
+  background: rgba(0,0,0,0.2);
+  padding: 1rem;
+  border-radius: 8px;
 }
+
+/* ANIMATIONS */
+.animate-fade-in { animation: fadeIn 0.4s ease-out; }
+.animate-slide-up { animation: slideUp 0.5s ease-out; }
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }

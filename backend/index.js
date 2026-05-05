@@ -76,6 +76,23 @@ app.post('/api/save-recipe', async (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
+
+// RUTĂ PENTRU A ADUCE TOATE REȚETELE SALVATE
+app.get('/api/get-recipes', async (req, res) => {
+  try {
+    const { data, error } = await supabase
+      .from('recipes')
+      .select('*')
+      .order('created_at', { ascending: false }); // Cele mai noi primele
+
+    if (error) throw error;
+    res.json(data);
+  } catch (error) {
+    console.error("Eroare la preluarea rețetelor:", error);
+    res.status(500).json({ error: "Nu am putut încărca rețetele." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Serverul rulează pe http://localhost:${PORT}`);
 });
