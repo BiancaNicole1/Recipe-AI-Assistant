@@ -33,7 +33,7 @@ app.post('/api/generate-recipe', async (req, res) => {
     const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare și pașii de preparare.`;
 
     // Apelăm modelul stabil
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
     const responseText = result.response.text();
 
