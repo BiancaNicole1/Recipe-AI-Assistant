@@ -6,24 +6,24 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
+// Setăm variabilele direct în mediul de execuție pentru a fi accesibile
+process.env.GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
+process.env.SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
+process.env.SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-// 1. Inițializăm serviciile cu noile tale chei
-const GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
-const SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
-const SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
-
-const ai = new GoogleGenAI({ apiKey: GEMINI_API_KEY });
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
 // Endpoint de test
 app.get('/api/test', (req, res) => {
   res.json({ message: "Backend-ul funcționează!" });
 });
 
-// 2. Endpoint pentru generarea rețetei cu Gemini
+// Endpoint pentru generarea rețetei cu Gemini
 app.post('/api/generate-recipe', async (req, res) => {
   const { ingredients } = req.body;
   
@@ -49,7 +49,7 @@ app.post('/api/generate-recipe', async (req, res) => {
   }
 });
 
-// 3. Endpoint pentru salvarea unei rețete în Supabase
+// Endpoint pentru salvarea unei rețete în Supabase
 app.post('/api/save-recipe', async (req, res) => {
   const { userId, title, ingredients, recipeText } = req.body;
 
