@@ -91,6 +91,18 @@ export default function App() {
   }
 };
 
+const handleLogout = () => {
+    const confirmare = window.confirm("Ești sigur(ă) că vrei să te deconectezi?");
+    if (confirmare) {
+      setIngredients('');
+      setRecipe('');
+      setSaveMessage('');
+      setError('');
+      setActiveTab('generate');
+      alert("Te-ai deconectat cu succes!");
+    }
+  };
+
   return (
     <div className="app-wrapper">
       <div className="main-container">
@@ -101,7 +113,7 @@ export default function App() {
             <h1>🍽️ Asistent Culinar AI</h1>
             <p>Utilizator: <span className="user-email">biancanicole20003@gmail.com</span></p>
           </div>
-          <button className="btn-logout">Deconectare</button>
+          <button className="btn-logout" onClick={handleLogout}>Deconectare</button>
         </header>
 
         {/* TABS */}
