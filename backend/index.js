@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-process.env.GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
+process.env.GEMINI_API_KEY = "AIzaSyC8he8bL6AGDr0PNRhABN5Pcn_rEZLXBM0";
 process.env.SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
 process.env.SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
 
