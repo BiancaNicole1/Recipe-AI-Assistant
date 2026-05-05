@@ -18,23 +18,49 @@ function App() {
   const [title, setTitle] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
+  const [savedRecipes, setSavedRecipes] = useState([]);
+  const [activeTab, setActiveTab] = useState('generate'); // 'generate' sau 'saved'
 
   useEffect(() => {
     const fetchSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        fetchSavedRecipes(currentUser.id);
+      }
     };
     
     fetchSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const currentUser = session?.user ?? null;
+      setUser(currentUser);
+      if (currentUser) {
+        fetchSavedRecipes(currentUser.id);
+      } else {
+        setSavedRecipes([]);
+      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
   }, []);
+
+  const fetchSavedRecipes = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('recipes')
+        .select('*')
+        .eq('user_id', userId);
+        
+      if (error) throw error;
+      setSavedRecipes(data || []);
+    } catch (err) {
+      console.error("Eroare la preluarea rețetelor:", err);
+    }
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
@@ -53,6 +79,7 @@ function App() {
       alert(error.message);
     } else {
       setUser(data.user);
+      fetchSavedRecipes(data.user.id);
     }
   };
 
@@ -90,6 +117,8 @@ function App() {
         recipeText: recipe
       });
       setMessage(response.data.message);
+      // Reîmprospătare rețete salvate
+      fetchSavedRecipes(user.id);
     } catch (err) {
       setMessage('Eroare la salvarea în baza de date.');
     }
@@ -99,8 +128,8 @@ function App() {
     return (
       <div className="auth-container">
         <div className="auth-card">
-          <h2>Autentificare Asistent Culinar</h2>
-          <p className="subtitle">Introdu datele pentru a continua</p>
+          <h2>🍽️ Asistent Culinar AI</h2>
+          <p className="subtitle">Autentifică-te pentru a începe</p>
           <form className="auth-form">
             <div className="input-group">
               <label>Email</label>
@@ -125,7 +154,7 @@ function App() {
             <button onClick={handleLogin} className="btn btn-login">
               Autentificare
             </button>
-            <button onClick={handleSignUp} className="btn btn-signup">
+            <button onClick={e => { e.preventDefault(); constSignUp(e); }} className="btn btn-signup">
               Înregistrare
             </button>
           </form>
@@ -146,43 +175,88 @@ function App() {
         </button>
       </header>
 
-      <div className="content-grid">
-        <div className="card input-section">
-          <h2>Ce vrei să gătești azi?</h2>
-          <label>Ingrediente disponibile (separate prin virgulă):</label>
-          <input 
-            type="text" 
-            value={ingredients} 
-            onChange={(e) => setIngredients(e.target.value)} 
-            placeholder="ex: ouă, roșii, brânză, sare" 
-            className="styled-input" 
-          />
-          <button 
-            onClick={generateRecipe} 
-            className="btn btn-generate"
-            disabled={loading}
-          >
-            {loading ? 'Se generează rețeta...' : 'Generează Rețeta'}
-          </button>
-        </div>
+      {/* Tab-uri de navigare */}
+      <div className="tabs">
+        <button 
+          className={`tab-btn ${activeTab === 'generate' ? 'active' : ''}`}
+          onClick={() => setActiveTab('generate')}
+        >
+          Generare Rețetă
+        </button>
+        <button 
+          className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
+          onClick={() => setActiveTab('saved')}
+        >
+          Rețete Salvate 💾
+        </button>
+      </div>
 
-        {message && <p className="error-message">{message}</p>}
-
-        {recipe && (
-          <div className="card recipe-section">
-            <h2>{title}</h2>
-            <div className="recipe-content">
-              <pre>{recipe}</pre>
-            </div>
+      {/* Secțiunea de Generare */}
+      {activeTab === 'generate' && (
+        <div className="content-grid">
+          <div className="card input-section">
+            <h2>Ce vrei să gătești azi?</h2>
+            <label>Ingrediente disponibile (separate prin virgulă):</label>
+            <input 
+              type="text" 
+              value={ingredients} 
+              onChange={(e) => setIngredients(e.target.value)} 
+              placeholder="ex: ouă, roșii, brânză, sare" 
+              className="styled-input" 
+            />
             <button 
-              onClick={saveRecipe} 
-              className="btn btn-save"
+              onClick={generateRecipe} 
+              className="btn btn-generate"
+              disabled={loading}
             >
-              Salvează rețeta în Supabase
+              {loading ? 'Se generează rețeta...' : 'Generează Rețeta'}
             </button>
           </div>
-        )}
-      </div>
+
+          {message && <p className="error-message">{message}</p>}
+
+          {recipe && (
+            <div className="card recipe-section">
+              <h2>{title}</h2>
+              <div className="recipe-content">
+                <pre>{recipe}</pre>
+              </div>
+              <button 
+                onClick={saveRecipe} 
+                className="btn btn-save"
+              >
+                Salvează rețeta în Supabase
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Secțiunea de Rețete Salvate */}
+      {activeTab === 'saved' && (
+        <div className="saved-recipes-container">
+          <h2>Rețetele tale salvate</h2>
+          {savedRecipes.length === 0 ? (
+            <p className="empty-state">Nu ai salvat nicio rețetă momentan.</p>
+          ) : (
+            <div className="saved-list">
+              {savedRecipes.map((receta, index) => (
+                <div key={index} className="card recipe-card">
+                  <h3>{receta.title || "Rețetă salvată"}</h3>
+                  <p><b>Ingrediente:</b> {receta.ingredients}</p>
+                  <div className="receta-text-preview">
+                    <pre>{receta.recipe_text || receta.recipeText}</pre>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      <footer className="footer">
+        <p>Proiect Cloud Computing - Asistent Culinar AI</p>
+      </footer>
     </div>
   );
 }
