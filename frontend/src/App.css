@@ -1,100 +1,143 @@
-/* RESET & BASE */
-* { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  width: 100%;
+  min-height: 100vh;
   background-color: #0b1120;
   background-image: radial-gradient(circle at top right, #1e293b, #0b1120);
   color: #f8fafc;
   font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
-  min-height: 100vh;
+  overflow-x: hidden;
 }
 
-/* LAYOUT: Centrare Perfectă */
-.app-wrapper {
-  display: flex;
-  justify-content: center; /* Centrează pe axa X */
-  align-items: flex-start;
-  padding: 3rem 1rem;
+#root {
+  width: 100%;
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.app-wrapper {
+  width: 100%;
+  max-width: 800px; /* Acesta este lățimea aplicației. Pe mijloc! */
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
 }
 
 .main-container {
-  width: 100%;
-  max-width: 850px; /* Lățimea ideală, nu se lățește aiurea pe desktop */
   display: flex;
   flex-direction: column;
   gap: 2rem;
+  width: 100%;
 }
 
-/* HEADER */
 .top-header {
-  background: rgba(30, 41, 59, 0.7);
-  backdrop-filter: blur(10px);
+  background: rgba(30, 41, 59, 0.75);
+  backdrop-filter: blur(12px);
   border: 1px solid #334155;
   border-radius: 16px;
   padding: 1.5rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
 }
 
-.header-info h1 { font-size: 1.5rem; color: #f8fafc; margin-bottom: 0.2rem; }
-.header-info p { color: #94a3b8; font-size: 0.9rem; }
-.user-email { color: #cbd5e1; font-weight: 600; }
+.header-info h1 {
+  font-size: 1.6rem;
+  color: #f8fafc;
+  margin-bottom: 0.3rem;
+  letter-spacing: -0.5px;
+}
+
+.header-info p {
+  color: #94a3b8;
+  font-size: 0.95rem;
+}
+
+.user-email {
+  color: #60a5fa;
+  font-weight: 600;
+}
 
 .btn-logout {
-  background-color: #ef4444;
-  color: white;
-  border: none;
+  background-color: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
 }
-.btn-logout:hover { background-color: #dc2626; transform: translateY(-2px); }
 
-/* TABS */
+.btn-logout:hover {
+  background-color: #ef4444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+}
+
 .tabs-container {
   display: flex;
   gap: 1rem;
+  background: rgba(15, 23, 42, 0.6);
+  padding: 0.5rem;
+  border-radius: 12px;
+  border: 1px solid #334155;
 }
 
 .tab-btn {
-  background: #1e293b;
+  flex: 1;
+  background: transparent;
   color: #94a3b8;
-  border: 1px solid #334155;
+  border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s ease;
 }
 
-.tab-btn:hover { background: #334155; color: #f8fafc; }
+.tab-btn:hover {
+  color: #f8fafc;
+}
+
 .tab-btn.active {
   background: #3b82f6;
   color: white;
-  border-color: #60a5fa;
-  box-shadow: 0 0 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
 }
 
-/* CARDS (Glassmorphism) */
 .glass-card {
   background: rgba(30, 41, 59, 0.6);
   backdrop-filter: blur(12px);
   border: 1px solid #334155;
   border-radius: 16px;
   padding: 2rem;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
 }
 
-.glass-card h2 { color: #f8fafc; margin-bottom: 0.5rem; }
-.subtitle { color: #94a3b8; margin-bottom: 1.5rem; font-size: 0.95rem; }
+.glass-card h2 {
+  color: #f8fafc;
+  margin-bottom: 0.5rem;
+  font-size: 1.5rem;
+}
 
-/* FORM ELEMENTS */
+.subtitle {
+  color: #94a3b8;
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
 .pro-input {
   width: 100%;
   padding: 1.2rem;
@@ -102,7 +145,7 @@ body {
   border: 1px solid #475569;
   border-radius: 12px;
   color: #f8fafc;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   margin-bottom: 1.5rem;
   transition: all 0.3s ease;
 }
@@ -110,9 +153,14 @@ body {
 .pro-input:focus {
   outline: none;
   border-color: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+  box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.15);
 }
 
+.pro-input::placeholder {
+  color: #475569;
+}
+
+/* Butonul principal de generare */
 .btn-generate {
   width: 100%;
   padding: 1.2rem;
@@ -124,27 +172,29 @@ body {
   border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 15px rgba(234, 88, 12, 0.3);
+  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.3);
 }
 
 .btn-generate:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(234, 88, 12, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(234, 88, 12, 0.5);
 }
-.btn-generate:disabled { background: #475569; cursor: not-allowed; box-shadow: none; opacity: 0.7; }
 
-/* ALERTS */
-.alert-box {
-  padding: 1rem 1.5rem;
-  border-radius: 12px;
-  font-size: 0.95rem;
-  line-height: 1.5;
+.btn-generate:active:not(:disabled) {
+  transform: translateY(0);
 }
-.alert-box.error { background-color: rgba(127, 29, 29, 0.5); border: 1px solid #b91c1c; color: #fca5a5; }
-.alert-box.success { background-color: rgba(20, 83, 45, 0.5); border: 1px solid #16a34a; color: #86efac; }
-.alert-box.mini { padding: 0.8rem; margin-bottom: 1rem; font-size: 0.9rem; }
 
-/* RESULTS AREA */
+.btn-generate:disabled {
+  background: #334155;
+  color: #94a3b8;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.results-card {
+  border-top: 4px solid #f59e0b;
+}
+
 .results-header {
   display: flex;
   justify-content: space-between;
@@ -158,29 +208,68 @@ body {
   background-color: #10b981;
   color: white;
   border: none;
-  padding: 0.5rem 1rem;
+  padding: 0.6rem 1.2rem;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s;
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);
 }
-.btn-save:hover:not(:disabled) { background-color: #059669; }
 
-/* MARKDOWN STYLING */
+.btn-save:hover:not(:disabled) {
+  background-color: #059669;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(16, 185, 129, 0.4);
+}
+
+/* Alerte */
+.alert-box {
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+.alert-box.error { background-color: rgba(127, 29, 29, 0.2); border: 1px solid #b91c1c; color: #fca5a5; }
+.alert-box.success { background-color: rgba(20, 83, 45, 0.2); border: 1px solid #16a34a; color: #86efac; }
+.alert-box.mini { padding: 0.8rem; margin-bottom: 1.5rem; font-size: 0.95rem; font-weight: 500;}
+
 .markdown-container {
   color: #e2e8f0;
-  line-height: 1.7;
+  line-height: 1.8;
   font-size: 1.05rem;
 }
-.markdown-container h1, .markdown-container h2, .markdown-container h3 {
+
+.markdown-container h1, 
+.markdown-container h2, 
+.markdown-container h3 {
   color: #fbbf24;
   margin-top: 2rem;
   margin-bottom: 1rem;
+  font-weight: 700;
 }
-.markdown-container h1:first-child, .markdown-container h2:first-child { margin-top: 0; }
-.markdown-container ul, .markdown-container ol { margin-left: 1.5rem; margin-bottom: 1.5rem; }
-.markdown-container li { margin-bottom: 0.5rem; }
-.markdown-container strong { color: #f8fafc; }
+
+.markdown-container h1:first-child, 
+.markdown-container h2:first-child { 
+  margin-top: 0; 
+}
+
+.markdown-container ul, 
+.markdown-container ol { 
+  margin-left: 1.8rem; 
+  margin-bottom: 1.5rem; 
+}
+
+.markdown-container li { 
+  margin-bottom: 0.6rem; 
+}
+
+.markdown-container strong { 
+  color: #ffffff; 
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 0 0.2rem;
+  border-radius: 4px;
+}
+
 .saved-recipes-container {
   display: flex;
   flex-direction: column;
@@ -188,12 +277,13 @@ body {
 }
 
 .saved-item {
-  border-left: 5px solid #f59e0b; /* O dungă portocalie în stânga */
-  transition: transform 0.2s;
+  border-left: 6px solid #3b82f6; /* Linie albastră pentru rețete salvate */
+  transition: all 0.3s ease;
 }
 
 .saved-item:hover {
-  transform: scale(1.01);
+  transform: translateX(5px); /* Efect mișto când dai cu mouse-ul */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
 }
 
 .saved-item-header {
@@ -201,36 +291,58 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 1rem;
-  border-bottom: 1px dashed #334155;
-  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #334155;
+  padding-bottom: 0.8rem;
+}
+
+.saved-item-header h3 {
+  font-size: 1.3rem;
+  color: #f8fafc;
+  margin: 0;
 }
 
 .date-tag {
-  font-size: 0.8rem;
-  background: #334155;
-  padding: 0.2rem 0.6rem;
+  font-size: 0.85rem;
+  background: #0f172a;
+  padding: 0.3rem 0.8rem;
   border-radius: 20px;
   color: #94a3b8;
+  border: 1px solid #334155;
 }
 
 .ingredients-tag {
-  font-size: 0.9rem;
-  color: #60a5fa;
-  margin-bottom: 1rem;
+  font-size: 0.95rem;
+  color: #93c5fd;
+  margin-bottom: 1.5rem;
+  background: rgba(59, 130, 246, 0.1);
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px dashed #3b82f6;
 }
 
 .markdown-container.mini {
-  font-size: 0.95rem;
-  max-height: 300px; /* Ca să nu fie gigantice dacă sunt multe */
+  max-height: 350px;
   overflow-y: auto;
-  background: rgba(0,0,0,0.2);
-  padding: 1rem;
-  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
 }
 
-/* ANIMATIONS */
-.animate-fade-in { animation: fadeIn 0.4s ease-out; }
-.animate-slide-up { animation: slideUp 0.5s ease-out; }
+/* Scrollbar personalizat pentru caseta de text */
+.markdown-container.mini::-webkit-scrollbar { width: 8px; }
+.markdown-container.mini::-webkit-scrollbar-track { background: #0f172a; border-radius: 4px; }
+.markdown-container.mini::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+.markdown-container.mini::-webkit-scrollbar-thumb:hover { background: #64748b; }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+.animate-fade-in { animation: fadeIn 0.4s ease-out forwards; }
+.animate-slide-up { animation: slideUp 0.5s ease-out forwards; }
+
+@keyframes fadeIn { 
+  from { opacity: 0; } 
+  to { opacity: 1; } 
+}
+@keyframes slideUp { 
+  from { opacity: 0; transform: translateY(20px); } 
+  to { opacity: 1; transform: translateY(0); } 
+}
