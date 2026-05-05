@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-// Setăm variabilele direct în mediul de execuție pentru a fi accesibile
+// Setăm variabilele direct în mediul de execuție
 process.env.GEMINI_API_KEY = "AIzaSyA-fnBd8KRDJnG7D1M8G-4_porpSYlH1fw";
 process.env.SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
 process.env.SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
@@ -35,7 +35,7 @@ app.post('/api/generate-recipe', async (req, res) => {
     const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare (poți adăuga sare, piper sau ulei dacă e cazul) și pașii de preparare.`;
 
     const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
+      model: 'gemini-1.5-flash',
       contents: prompt,
     });
 
@@ -45,7 +45,7 @@ app.post('/api/generate-recipe', async (req, res) => {
     });
   } catch (error) {
     console.error("Eroare la generarea rețetei:", error);
-    res.status(500).json({ error: "A apărut o eroare la server." });
+    res.status(500).json({ error: "Eroare server: " + error.message });
   }
 });
 
