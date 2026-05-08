@@ -1,8 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
 export default function App() {
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
+
   const [activeTab, setActiveTab] = useState('generate');
   const [ingredients, setIngredients] = useState('');
   const [recipe, setRecipe] = useState('');
@@ -15,12 +19,31 @@ export default function App() {
 
   const API_BASE = 'https://recipe-ai-assistant-backend.onrender.com/api';
 
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (loginEmail.trim() === '' || loginPassword.trim() === '') {
+      alert("Te rog introdu un email și o parolă!");
+      return;
+    }
+    setIsLoggedIn(true);
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Vrei să părăsești asistentul culinar?")) {
+      setIsLoggedIn(false);
+      setLoginEmail('');
+      setLoginPassword('');
+      setRecipe('');
+      setIngredients('');
+      setActiveTab('generate');
+    }
+  };
+
   const handleGenerate = async () => {
     if (!ingredients.trim()) {
       setError('Te rog să introduci câteva ingrediente (ex: ouă, făină, lapte).');
       return;
     }
-
     setLoading(true);
     setError('');
     setRecipe('');
@@ -28,7 +51,6 @@ export default function App() {
 
     try {
       const ingredientsArray = ingredients.split(',').map(item => item.trim());
-
       const response = await fetch(`${API_BASE}/generate-recipe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -37,7 +59,6 @@ export default function App() {
 
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Eroare la server.');
-
       setRecipe(data.recipe);
     } catch (err) {
       setError(err.message);
@@ -56,7 +77,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'bianca-nicole-2024',
+          userId: loginEmail,
           title: 'Rețetă Delicioasă AI',
           ingredients: ingredients.split(',').map(i => i.trim()),
           recipeText: recipe
@@ -64,10 +85,9 @@ export default function App() {
       });
 
       if (!response.ok) throw new Error('Nu am putut salva rețeta.');
-      
-      setSaveMessage('✅ Rețeta a fost adăugată în colecția ta!');
+      setSaveMessage('Rețeta a fost adăugată în colecția ta!');
     } catch (err) {
-      setSaveMessage('❌ Eroare: ' + err.message);
+      setSaveMessage('Eroare: ' + err.message);
     } finally {
       setSaving(false);
     }
@@ -88,22 +108,45 @@ export default function App() {
 
   const handleDelete = async (id) => {
     if (!window.confirm("Sigur vrei să ștergi această rețetă din jurnalul tău?")) return;
-
     try {
       const response = await fetch(`${API_BASE}/delete-recipe/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error("Eroare la ștergere.");
-
       setSavedRecipes(prev => prev.filter(r => r.id !== id));
     } catch (err) {
       alert(err.message);
     }
   };
 
-  const handleLogout = () => {
-    if (window.confirm("Vrei să părăsești asistentul culinar?")) {
-      window.location.reload(); // Simulare simplă de logout prin refresh
-    }
-  };
+  if (!isLoggedIn) {
+    return (
+      <div className="login-container animate-fade-in">
+        <div className="login-card">
+          <h2>Gourmet AI</h2>
+          <p>Bun venit! Conectează-te pentru a continua.</p>
+          
+          <form className="login-form" onSubmit={handleLogin}>
+            <input 
+              type="email" 
+              className="login-input" 
+              placeholder="Adresa de Email" 
+              value={loginEmail}
+              onChange={(e) => setLoginEmail(e.target.value)}
+              required
+            />
+            <input 
+              type="password" 
+              className="login-input" 
+              placeholder="Parola" 
+              value={loginPassword}
+              onChange={(e) => setLoginPassword(e.target.value)}
+              required
+            />
+            <button type="submit" className="btn-login">Conectare</button>
+          </form>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="app-wrapper">
@@ -111,8 +154,8 @@ export default function App() {
         
         <header className="top-header animate-fade-in">
           <div className="header-info">
-            <h1>🌸 Gourmet AI</h1>
-            <p>Bucătar personal: <span className="user-email">biancanicole20003@gmail.com</span></p>
+            <h1>Gourmet AI</h1>
+            <p>Bucătar personal: <span className="user-email">{loginEmail}</span></p>
           </div>
           <button className="btn-logout" onClick={handleLogout}>Deconectare</button>
         </header>
@@ -122,7 +165,7 @@ export default function App() {
             className={`tab-btn ${activeTab === 'generate' ? 'active' : ''}`}
             onClick={() => setActiveTab('generate')}
           >
-            🍳 Creează Rețetă
+            Creează Rețetă
           </button>
           <button 
             className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
@@ -131,15 +174,16 @@ export default function App() {
               fetchSavedRecipes();
             }}
           >
-             Jurnalul Meu
+            Jurnalul Meu
           </button>
         </nav>
+
         <main className="content-area">
           
           {activeTab === 'generate' && (
             <section className="animate-slide-up">
               <div className="glass-card">
-                <h2>Inspiră-te astăzi </h2>
+                <h2>Inspiră-te astăzi</h2>
                 <p className="subtitle">Introdu ingredientele pe care le ai în frigider:</p>
                 
                 <input
@@ -156,7 +200,7 @@ export default function App() {
                   onClick={handleGenerate}
                   disabled={loading}
                 >
-                  {loading ? 'Se prepară ideea... 🥣' : 'Generează Rețeta 🪄'}
+                  {loading ? 'Se prepară ideea...' : 'Generează Rețeta'}
                 </button>
               </div>
 
@@ -167,12 +211,12 @@ export default function App() {
                   <div className="results-header">
                     <h2>Propunerea Chef-ului AI</h2>
                     <button className="btn-save" onClick={handleSave} disabled={saving}>
-                      {saving ? 'Se salvează...' : ' Salvează'}
+                      {saving ? 'Se salvează...' : 'Salvează'}
                     </button>
                   </div>
                   
                   {saveMessage && (
-                    <div className={`alert-box mini ${saveMessage.includes('❌') ? 'error' : 'success'}`}>
+                    <div className={`alert-box mini ${saveMessage.includes('Eroare') ? 'error' : 'success'}`}>
                       {saveMessage}
                     </div>
                   )}
@@ -199,8 +243,8 @@ export default function App() {
                     <div className="saved-item-header">
                       <h3>{item.title || 'Deliciu AI'}</h3>
                       <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
-                        <span className="date-tag"> {new Date(item.created_at).toLocaleDateString()}</span>
-                        <button className="btn-delete" onClick={() => handleDelete(item.id)}>🗑️</button>
+                        <span className="date-tag">{new Date(item.created_at).toLocaleDateString()}</span>
+                        <button className="btn-delete" onClick={() => handleDelete(item.id)}>Șterge</button>
                       </div>
                     </div>
                     <div className="ingredients-tag">
@@ -213,7 +257,7 @@ export default function App() {
                 ))
               ) : (
                 <div className="glass-card" style={{textAlign: 'center'}}>
-                  <p>Jurnalul tău este gol. Începe să creezi rețete noi! 👩‍🍳</p>
+                  <p>Jurnalul tău este gol. Începe să creezi rețete noi!</p>
                 </div>
               )}
             </section>
