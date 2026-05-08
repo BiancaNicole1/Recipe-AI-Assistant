@@ -14,7 +14,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Inițializăm clientul Gemini corect!
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
 
@@ -30,7 +29,7 @@ app.post('/api/generate-recipe', async (req, res) => {
   }
 
   try {
-    const prompt = `Creează o rețetă simplă și delicioasă folosind doar următoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare și pașii de preparare.`;
+    const prompt = `Creeaza o reteta simpla și delicioasa folosind doar urmatoarele ingrediente: ${ingredients.join(', ')}. Include un titlu, ingredientele necesare și pașii de preparare.`;
 
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
     const result = await model.generateContent(prompt);
@@ -77,22 +76,28 @@ app.post('/api/save-recipe', async (req, res) => {
 
 const PORT = process.env.PORT || 5000;
 
-// RUTĂ PENTRU A ADUCE TOATE REȚETELE SALVATE
 app.get('/api/get-recipes', async (req, res) => {
+  const userId = req.query.userId;
+
   try {
-    const { data, error } = await supabase
+    let query = supabase
       .from('recipes')
       .select('*')
-      .order('created_at', { ascending: false }); // Cele mai noi primele
+      .order('created_at', { ascending: false });
+
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query;
 
     if (error) throw error;
     res.json(data);
   } catch (error) {
-    console.error("Eroare la preluarea rețetelor:", error);
-    res.status(500).json({ error: "Nu am putut încărca rețetele." });
+    console.error(error);
+    res.status(500).json({ error: "Eroare server" });
   }
 });
-
 
 app.delete('/api/delete-recipe/:id', async (req, res) => {
   const recipeId = req.params.id; 

@@ -144,10 +144,10 @@ export default function App() {
     }
   };
 
-  const fetchSavedRecipes = async () => {
+ const fetchSavedRecipes = async () => {
     setLoadingSaved(true);
     try {
-      const response = await fetch(`${API_BASE}/get-recipes`);
+      const response = await fetch(`${API_BASE}/get-recipes?userId=${loginEmail}`);
       const data = await response.json();
       if (response.ok) setSavedRecipes(data);
     } catch (err) {
