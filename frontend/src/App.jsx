@@ -3,11 +3,12 @@ import ReactMarkdown from 'react-markdown';
 import { createClient } from '@supabase/supabase-js';
 import './App.css';
 
-const supabaseUrl = 'LINK_UL_TAU_SUPABASE_AICI';
-const supabaseKey = 'CHEIA_TA_SUPABASE_AICI';
+const supabaseUrl = 'https://ybdzqspxgkkqfokyetol.supabase.co';
+const supabaseKey = 'sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq';
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function App() {
+  const [isInitializing, setIsInitializing] = useState(true);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isRegistering, setIsRegistering] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
@@ -28,10 +29,16 @@ export default function App() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setIsLoggedIn(true);
-        setLoginEmail(session.user.email);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session) {
+          setIsLoggedIn(true);
+          setLoginEmail(session.user.email);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setIsInitializing(false);
       }
     };
     checkSession();
@@ -144,7 +151,7 @@ export default function App() {
       const data = await response.json();
       if (response.ok) setSavedRecipes(data);
     } catch (err) {
-      console.error("Eroare la încărcare:", err);
+      console.error(err);
     } finally {
       setLoadingSaved(false);
     }
@@ -160,6 +167,10 @@ export default function App() {
       alert(err.message);
     }
   };
+
+  if (isInitializing) {
+    return <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: '#e11d48', fontWeight: 'bold'}}>Se încarcă aplicația...</div>;
+  }
 
   if (!isLoggedIn) {
     return (
