@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import './App.css';
 
@@ -13,12 +13,11 @@ export default function App() {
   const [saving, setSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState('');
 
-  const URL_GENERATE = 'https://recipe-ai-assistant-backend.onrender.com/api/generate-recipe';
-  const URL_SAVE = 'https://recipe-ai-assistant-backend.onrender.com/api/save-recipe';
+  const API_BASE = 'https://recipe-ai-assistant-backend.onrender.com/api';
 
   const handleGenerate = async () => {
     if (!ingredients.trim()) {
-      setError('Te rog să introduci cel puțin un ingredient.');
+      setError('Te rog să introduci câteva ingrediente (ex: ouă, făină, lapte).');
       return;
     }
 
@@ -30,17 +29,14 @@ export default function App() {
     try {
       const ingredientsArray = ingredients.split(',').map(item => item.trim());
 
-      const response = await fetch(URL_GENERATE, {
+      const response = await fetch(`${API_BASE}/generate-recipe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ingredients: ingredientsArray })
       });
 
       const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.error || 'A apărut o eroare la comunicarea cu serverul.');
-      }
+      if (!response.ok) throw new Error(data.error || 'Eroare la server.');
 
       setRecipe(data.recipe);
     } catch (err) {
@@ -51,55 +47,61 @@ export default function App() {
   };
 
   const handleSave = async () => {
+    if (!recipe) return;
     setSaving(true);
     setSaveMessage('');
+
     try {
-      const response = await fetch(URL_SAVE, {
+      const response = await fetch(`${API_BASE}/save-recipe`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          userId: 'user-demo-123', // Până implementezi autentificarea reală
-          title: 'Rețetă Generată AI',
+          userId: 'bianca-nicole-2024',
+          title: 'Rețetă Delicioasă AI',
           ingredients: ingredients.split(',').map(i => i.trim()),
           recipeText: recipe
         })
       });
 
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error);
+      if (!response.ok) throw new Error('Nu am putut salva rețeta.');
       
-      setSaveMessage('✅ Rețeta a fost salvată cu succes în Supabase!');
+      setSaveMessage('✅ Rețeta a fost adăugată în colecția ta!');
     } catch (err) {
-      setSaveMessage('❌ Eroare la salvare: ' + err.message);
+      setSaveMessage('❌ Eroare: ' + err.message);
     } finally {
       setSaving(false);
     }
   };
 
   const fetchSavedRecipes = async () => {
-  setLoadingSaved(true);
-  try {
-    const response = await fetch('https://recipe-ai-assistant-backend.onrender.com/api/get-recipes');
-    const data = await response.json();
-    if (response.ok) {
-      setSavedRecipes(data);
+    setLoadingSaved(true);
+    try {
+      const response = await fetch(`${API_BASE}/get-recipes`);
+      const data = await response.json();
+      if (response.ok) setSavedRecipes(data);
+    } catch (err) {
+      console.error("Eroare la încărcare:", err);
+    } finally {
+      setLoadingSaved(false);
     }
-  } catch (err) {
-    console.error("Eroare la încărcare:", err);
-  } finally {
-    setLoadingSaved(false);
-  }
-};
+  };
 
-const handleLogout = () => {
-    const confirmare = window.confirm("Ești sigur(ă) că vrei să te deconectezi?");
-    if (confirmare) {
-      setIngredients('');
-      setRecipe('');
-      setSaveMessage('');
-      setError('');
-      setActiveTab('generate');
-      alert("Te-ai deconectat cu succes!");
+  const handleDelete = async (id) => {
+    if (!window.confirm("Sigur vrei să ștergi această rețetă din jurnalul tău?")) return;
+
+    try {
+      const response = await fetch(`${API_BASE}/delete-recipe/${id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error("Eroare la ștergere.");
+
+      setSavedRecipes(prev => prev.filter(r => r.id !== id));
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  const handleLogout = () => {
+    if (window.confirm("Vrei să părăsești asistentul culinar?")) {
+      window.location.reload(); // Simulare simplă de logout prin refresh
     }
   };
 
@@ -107,118 +109,116 @@ const handleLogout = () => {
     <div className="app-wrapper">
       <div className="main-container">
         
-        {/* HEADER */}
-        <header className="top-header">
+        <header className="top-header animate-fade-in">
           <div className="header-info">
-            <h1> Asistent Culinar AI</h1>
-            <p>Utilizator: <span className="user-email">biancanicole20003@gmail.com</span></p>
+            <h1>🌸 Gourmet AI</h1>
+            <p>Bucătar personal: <span className="user-email">biancanicole20003@gmail.com</span></p>
           </div>
           <button className="btn-logout" onClick={handleLogout}>Deconectare</button>
         </header>
 
-        {/* TABS */}
-        <div className="tabs-container">
+        <nav className="tabs-container">
           <button 
             className={`tab-btn ${activeTab === 'generate' ? 'active' : ''}`}
             onClick={() => setActiveTab('generate')}
           >
-            Generare Rețetă
+            🍳 Creează Rețetă
           </button>
           <button 
             className={`tab-btn ${activeTab === 'saved' ? 'active' : ''}`}
             onClick={() => {
-    setActiveTab('saved');
-    fetchSavedRecipes(); // Încărcăm datele când dăm click pe tab
-  }}
->
-  Rețete Salvate 💾
+              setActiveTab('saved');
+              fetchSavedRecipes();
+            }}
+          >
+             Jurnalul Meu
           </button>
-        </div>
-
-        {/* CONTENT AREA */}
-        {activeTab === 'generate' && (
-          <div className="content-area animate-fade-in">
-            
-            {/* INPUT SECTION */}
-            <div className="glass-card">
-              <h2>Ce vrei să gătești azi?</h2>
-              <p className="subtitle">Ingrediente disponibile (separate prin virgulă):</p>
-              
-              <input
-                type="text"
-                className="pro-input"
-                placeholder="ex: ouă, roșii, paste, busuioc"
-                value={ingredients}
-                onChange={(e) => setIngredients(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
-              />
-              
-              <button 
-                className="btn-generate" 
-                onClick={handleGenerate}
-                disabled={loading}
-              >
-                {loading ? '⏳ AI-ul creează magia...' : '✨ Generează Rețeta'}
-              </button>
-            </div>
-
-            {/* ERROR ALERT */}
-            {error && (
-              <div className="alert-box error">
-                <p><strong>Eroare:</strong> {error}</p>
-              </div>
-            )}
-
-            {/* RESULTS SECTION */}
-            {recipe && (
-              <div className="glass-card results-card animate-slide-up">
-                <div className="results-header">
-                  <h2>Rețetă Generată</h2>
-                  <button className="btn-save" onClick={handleSave} disabled={saving}>
-                    {saving ? 'Se salvează...' : '💾 Salvează Rețeta'}
-                  </button>
-                </div>
+        </nav>
+        <main className="content-area">
+          
+          {activeTab === 'generate' && (
+            <section className="animate-slide-up">
+              <div className="glass-card">
+                <h2>Inspiră-te astăzi </h2>
+                <p className="subtitle">Introdu ingredientele pe care le ai în frigider:</p>
                 
-                {saveMessage && (
-                  <div className={`alert-box mini ${saveMessage.includes('❌') ? 'error' : 'success'}`}>
-                    {saveMessage}
-                  </div>
-                )}
-
-                <div className="markdown-container">
-                  <ReactMarkdown>{recipe}</ReactMarkdown>
-                </div>
+                <input
+                  type="text"
+                  className="pro-input"
+                  placeholder="ex: pui, smântână, ciuperci..."
+                  value={ingredients}
+                  onChange={(e) => setIngredients(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+                />
+                
+                <button 
+                  className="btn-generate" 
+                  onClick={handleGenerate}
+                  disabled={loading}
+                >
+                  {loading ? 'Se prepară ideea... 🥣' : 'Generează Rețeta 🪄'}
+                </button>
               </div>
-            )}
-          </div>
-        )}
 
-        {activeTab === 'saved' && (
-  <div className="saved-recipes-container animate-fade-in">
-    {loadingSaved ? (
-      <div className="glass-card" style={{ textAlign: 'center' }}>
-        <p>⏳ Se încarcă bunătățile tale din baza de date...</p>
-      </div>
-    ) : savedRecipes.length > 0 ? (
-      savedRecipes.map((item) => (
-        <div key={item.id} className="glass-card saved-item">
-          <div className="saved-item-header">
-            <h3>{item.title || 'Rețetă AI'}</h3>
-            <span className="date-tag">{new Date(item.created_at).toLocaleDateString()}</span>
-          </div>
-          <p className="ingredients-tag"><strong>Ingrediente:</strong> {Array.isArray(item.ingredients) ? item.ingredients.join(', ') : item.ingredients}</p>
-          <div className="markdown-container mini">
-            <ReactMarkdown>{item.recipe_text}</ReactMarkdown>
-          </div>
-        </div>
-      ))
-    ) : (
-      <div className="glass-card" style={{ textAlign: 'center' }}>
-        <p>Nu ai nicio rețetă salvată încă. Generează una și apasă pe butonul de salvare! 👩‍🍳</p>
-      </div>
-    )}
-  </div>
-)}
+              {error && <div className="alert-box error mini" style={{marginTop: '1rem'}}>{error}</div>}
+
+              {recipe && (
+                <div className="glass-card results-card animate-slide-up" style={{marginTop: '2rem'}}>
+                  <div className="results-header">
+                    <h2>Propunerea Chef-ului AI</h2>
+                    <button className="btn-save" onClick={handleSave} disabled={saving}>
+                      {saving ? 'Se salvează...' : ' Salvează'}
+                    </button>
+                  </div>
+                  
+                  {saveMessage && (
+                    <div className={`alert-box mini ${saveMessage.includes('❌') ? 'error' : 'success'}`}>
+                      {saveMessage}
+                    </div>
+                  )}
+
+                  <div className="markdown-container">
+                    <ReactMarkdown>{recipe}</ReactMarkdown>
+                  </div>
+                </div>
+              )}
+            </section>
+          )}
+
+          {activeTab === 'saved' && (
+            <section className="saved-recipes-container animate-fade-in">
+              <h2 style={{textAlign: 'center', color: '#e11d48', marginBottom: '1rem'}}>Rețetele Tale Favorite</h2>
+              
+              {loadingSaved ? (
+                <div className="glass-card" style={{textAlign: 'center'}}>
+                  <p>Răsfoim jurnalul tău... imediat!</p>
+                </div>
+              ) : savedRecipes.length > 0 ? (
+                savedRecipes.map((item) => (
+                  <div key={item.id} className="glass-card saved-item animate-slide-up">
+                    <div className="saved-item-header">
+                      <h3>{item.title || 'Deliciu AI'}</h3>
+                      <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
+                        <span className="date-tag"> {new Date(item.created_at).toLocaleDateString()}</span>
+                        <button className="btn-delete" onClick={() => handleDelete(item.id)}>🗑️</button>
+                      </div>
+                    </div>
+                    <div className="ingredients-tag">
+                      {Array.isArray(item.ingredients) ? item.ingredients.join(', ') : item.ingredients}
+                    </div>
+                    <div className="markdown-container mini">
+                      <ReactMarkdown>{item.recipe_text}</ReactMarkdown>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="glass-card" style={{textAlign: 'center'}}>
+                  <p>Jurnalul tău este gol. Începe să creezi rețete noi! 👩‍🍳</p>
+                </div>
+              )}
+            </section>
+          )}
+        </main>
 
       </div>
     </div>

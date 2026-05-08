@@ -93,6 +93,25 @@ app.get('/api/get-recipes', async (req, res) => {
   }
 });
 
+
+app.delete('/api/delete-recipe/:id', async (req, res) => {
+  const recipeId = req.params.id; 
+  
+  try {
+    const { error } = await supabase
+      .from('recipes')
+      .delete()
+      .eq('id', recipeId); 
+
+    if (error) throw error;
+
+    res.json({ message: "Reteta a fost stearsa cu succes!" });
+  } catch (error) {
+    console.error("Eroare la stergerea retetei:", error);
+    res.status(500).json({ error: "Eroare la stergerea din baza de date." });
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`Serverul rulează pe http://localhost:${PORT}`);
 });
