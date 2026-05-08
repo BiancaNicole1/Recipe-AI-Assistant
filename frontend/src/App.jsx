@@ -1,11 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
+import { createClient } from '@supabase/supabase-js';
 import './App.css';
+
+const supabaseUrl = 'LINK_UL_TAU_SUPABASE_AICI';
+const supabaseKey = 'CHEIA_TA_SUPABASE_AICI';
+const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isRegistering, setIsRegistering] = useState(false);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
+  const [authError, setAuthError] = useState('');
 
   const [activeTab, setActiveTab] = useState('generate');
   const [ingredients, setIngredients] = useState('');
@@ -19,17 +26,54 @@ export default function App() {
 
   const API_BASE = 'https://recipe-ai-assistant-backend.onrender.com/api';
 
-  const handleLogin = (e) => {
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setIsLoggedIn(true);
+        setLoginEmail(session.user.email);
+      }
+    };
+    checkSession();
+  }, []);
+
+  const handleAuth = async (e) => {
     e.preventDefault();
+    setAuthError('');
+
     if (loginEmail.trim() === '' || loginPassword.trim() === '') {
-      alert("Te rog introdu un email și o parolă!");
+      setAuthError("Introdu un email și o parolă valide.");
       return;
     }
-    setIsLoggedIn(true);
+
+    if (isRegistering) {
+      const { data, error } = await supabase.auth.signUp({
+        email: loginEmail,
+        password: loginPassword,
+      });
+
+      if (error) {
+        setAuthError(error.message);
+      } else {
+        setIsLoggedIn(true);
+      }
+    } else {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: loginEmail,
+        password: loginPassword,
+      });
+
+      if (error) {
+        setAuthError("Email sau parolă incorecte.");
+      } else {
+        setIsLoggedIn(true);
+      }
+    }
   };
 
-  const handleLogout = () => {
-    if (window.confirm("Vrei să părăsești asistentul culinar?")) {
+  const handleLogout = async () => {
+    if (window.confirm("Vrei să te deconectezi?")) {
+      await supabase.auth.signOut();
       setIsLoggedIn(false);
       setLoginEmail('');
       setLoginPassword('');
@@ -41,7 +85,7 @@ export default function App() {
 
   const handleGenerate = async () => {
     if (!ingredients.trim()) {
-      setError('Te rog să introduci câteva ingrediente (ex: ouă, făină, lapte).');
+      setError('Te rog să introduci ingrediente.');
       return;
     }
     setLoading(true);
@@ -78,14 +122,14 @@ export default function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: loginEmail,
-          title: 'Rețetă Delicioasă AI',
+          title: 'Rețetă Generată AI',
           ingredients: ingredients.split(',').map(i => i.trim()),
           recipeText: recipe
         })
       });
 
       if (!response.ok) throw new Error('Nu am putut salva rețeta.');
-      setSaveMessage('Rețeta a fost adăugată în colecția ta!');
+      setSaveMessage('Rețeta a fost salvată.');
     } catch (err) {
       setSaveMessage('Eroare: ' + err.message);
     } finally {
@@ -107,7 +151,7 @@ export default function App() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Sigur vrei să ștergi această rețetă din jurnalul tău?")) return;
+    if (!window.confirm("Sigur vrei să ștergi această rețetă?")) return;
     try {
       const response = await fetch(`${API_BASE}/delete-recipe/${id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error("Eroare la ștergere.");
@@ -122,9 +166,9 @@ export default function App() {
       <div className="login-container animate-fade-in">
         <div className="login-card">
           <h2>Gourmet AI</h2>
-          <p>Bun venit! Conectează-te pentru a continua.</p>
+          <p>{isRegistering ? "Creează un cont nou" : "Conectează-te pentru a continua"}</p>
           
-          <form className="login-form" onSubmit={handleLogin}>
+          <form className="login-form" onSubmit={handleAuth}>
             <input 
               type="email" 
               className="login-input" 
@@ -136,13 +180,23 @@ export default function App() {
             <input 
               type="password" 
               className="login-input" 
-              placeholder="Parola" 
+              placeholder="Parola (minim 6 caractere)" 
               value={loginPassword}
               onChange={(e) => setLoginPassword(e.target.value)}
               required
+              minLength="6"
             />
-            <button type="submit" className="btn-login">Conectare</button>
+            
+            {authError && <div style={{ color: '#e11d48', fontSize: '0.9rem', marginTop: '0.5rem' }}>{authError}</div>}
+            
+            <button type="submit" className="btn-login">
+              {isRegistering ? "Creează Cont" : "Conectare"}
+            </button>
           </form>
+
+          <p style={{ marginTop: '1.5rem', fontSize: '0.95rem', color: '#a8a29e', cursor: 'pointer' }} onClick={() => {setIsRegistering(!isRegistering); setAuthError('');}}>
+            {isRegistering ? "Ai deja cont? Conectează-te aici." : "Nu ai cont? Creează unul aici."}
+          </p>
         </div>
       </div>
     );
@@ -241,7 +295,7 @@ export default function App() {
                 savedRecipes.map((item) => (
                   <div key={item.id} className="glass-card saved-item animate-slide-up">
                     <div className="saved-item-header">
-                      <h3>{item.title || 'Deliciu AI'}</h3>
+                      <h3>{item.title || 'Rețetă AI'}</h3>
                       <div style={{display: 'flex', gap: '10px', alignItems: 'center'}}>
                         <span className="date-tag">{new Date(item.created_at).toLocaleDateString()}</span>
                         <button className="btn-delete" onClick={() => handleDelete(item.id)}>Șterge</button>
