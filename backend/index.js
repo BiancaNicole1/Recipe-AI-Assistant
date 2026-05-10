@@ -6,16 +6,16 @@ import { createClient } from '@supabase/supabase-js';
 
 dotenv.config();
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_GEY);
-process.env.SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
-process.env.SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
-
 const app = express();
 app.use(cors());
 app.use(express.json());
 
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+
+const SUPABASE_URL = "https://ybdzqspxgkkqfokyetol.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_XmwMwg_0zL_KhPMkSpQgdQ_F5-u_Cvq";
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 app.get('/api/test', (req, res) => {
   res.json({ message: "Backend-ul funcționează!" });
@@ -43,14 +43,12 @@ app.post('/api/generate-recipe', async (req, res) => {
   } catch (error) {
     console.error("Eroare la generarea rețetei:", error.message);
     
-    // VERIFICĂM DACĂ E EROARE DE TRAFIC DE LA GOOGLE
     if (error.message.includes("503") || error.message.includes("high demand") || error.message.includes("500")) {
       return res.status(503).json({ 
         error: "Serverele Google sunt suprasolicitate momentan. ⏳ Fiind un cont gratuit, mai apar întârzieri. Te rog să încerci din nou în câteva minute!" 
       });
     }
 
-    // Dacă e altă eroare
     res.status(500).json({ error: "Eroare la server: " + error.message });
   }
 });
