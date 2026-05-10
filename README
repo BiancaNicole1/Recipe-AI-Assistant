@@ -1,0 +1,63 @@
+# Gourmet AI - Asistent Culinar Inteligent
+
+**Nume Prenume:** Mazare Bianca-Nicole
+**Grupa:** 1146
+
+**Link Githhub:** https://github.com/BiancaNicole1/Recipe-AI-Assistant
+**Link video prezentare proiect:** 
+**Link publicare aplicație:** https://recipe-ai-assistant-myvqg4hka.vercel.app/
+
+---
+
+## 1. Introducere
+**Gourmet AI** este o aplicație web modernă care funcționează ca un asistent culinar personal. Scopul principal al aplicației este de a oferi utilizatorilor inspirație instantanee în bucătărie, transformând ingredientele disponibile în rețete delicioase cu ajutorul Inteligenței Artificiale. Aplicația permite crearea unui cont personal, generarea de rețete și salvarea acestora într-un "Jurnal" digital.
+
+---
+
+## 2. Descriere problemă
+O problemă frecventă în societatea modernă este risipa alimentară și lipsa de inspirație sau timp pentru a decide ce să gătim cu ingredientele rămase prin frigider. De multe ori, utilizatorii ajung să comande mâncare sau să arunce alimente pentru că nu știu cum să le combine. 
+
+Gourmet AI rezolvă această problemă oferind o soluție rapidă și creativă: utilizatorul introduce ingredientele pe care le deține, iar aplicația interoghează un model AI avansat pentru a genera o rețetă unică. Salvarea rețetelor într-o bază de date persistentă adaugă valoare pe termen lung, creând o carte de bucate personalizată.
+
+---
+
+## 3. Descriere API
+Aplicația folosește o arhitectură bazată pe microservicii și API-uri, integrând atât API-uri externe, cât și un API propriu de backend:
+
+1. **Google Gemini API (Generative AI):** Serviciu cloud extern utilizat pentru a genera textul rețetelor pe baza unui prompt care include ingredientele trimise de utilizator.
+2. **Supabase API (BaaS):** Serviciu cloud utilizat pentru două funcționalități majore:
+   - **Autentificare:** Gestionează sesiunile utilizatorilor (Sign Up / Log In) folosind Supabase Auth.
+   - **Bază de date:** Permite interacțiunea cu o bază de date PostgreSQL pentru a efectua operațiuni CRUD pe rețetele salvate.
+3. **Backend API Custom (Node.js/Express):** O interfață RESTful găzduită pe Render, care acționează ca un "middleman" securizat între interfața web (React) și serviciile externe (Gemini și Supabase).
+
+---
+
+## 4. Flux de date
+* **POST /api/generate-recipe:** Trimite ingredientele și primește textul rețetei.
+* **POST /api/save-recipe:** Salvează rețeta în baza de date pentru utilizatorul logat.
+* **GET /api/get-recipes:** Preia doar rețetele utilizatorului curent.
+* **DELETE /api/delete-recipe/:id:** Șterge o rețetă din baza de date.
+
+---
+
+## 5. Capturi ecran
+
+**Autentificare și Creare Cont:**
+![Ecran Conectare](./poze/conectare.png)
+![Creare Cont](./poze/creeare_cont.png)
+
+**Generare Rețetă cu AI:**
+![Generare](./poze/generare.png)
+![Rezultat AI](./poze/rezultatAI.png)
+![Salvare Rețetă](./poze/salvare_reteta.png)
+
+**Jurnal și Istoric:**
+![Jurnal](./poze/jurnal.png)
+![Istoric Jurnal](./poze/istoric_jurnal.png)
+
+---
+
+## 6. Referințe
+* React Documentation
+* Supabase Documentation
+* Google AI SDK
